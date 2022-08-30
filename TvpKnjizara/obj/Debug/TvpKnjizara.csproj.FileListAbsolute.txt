@@ -9,3 +9,14 @@ D:\Projekti\TvpKnjizara\TvpKnjizara\obj\Debug\TvpKnjizara.exe
 D:\Projekti\TvpKnjizara\TvpKnjizara\obj\Debug\TvpKnjizara.pdb
 D:\Projekti\TvpKnjizara\TvpKnjizara\obj\Debug\TvpKnjizara.Form1.resources
 D:\Projekti\TvpKnjizara\TvpKnjizara\bin\Debug\Knjizara.accdb
+D:\Projekti\LibraryProject\TvpKnjizara\bin\Debug\Knjizara.accdb
+D:\Projekti\LibraryProject\TvpKnjizara\bin\Debug\TvpKnjizara.exe.config
+D:\Projekti\LibraryProject\TvpKnjizara\bin\Debug\TvpKnjizara.exe
+D:\Projekti\LibraryProject\TvpKnjizara\bin\Debug\TvpKnjizara.pdb
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.csproj.AssemblyReference.cache
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.Form1.resources
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.Properties.Resources.resources
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.csproj.GenerateResource.cache
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.csproj.CoreCompileInputs.cache
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.exe
+D:\Projekti\LibraryProject\TvpKnjizara\obj\Debug\TvpKnjizara.pdb

@@ -222,6 +222,8 @@ namespace TvpKnjizara
                 lblUkupnaCena.Text = "Cena: " + ukupnaCena;
                 dgvRacun.DataSource = null;
                 dgvRacun.DataSource = listaIzabraneKnjige;
+                if(listaIzabraneKnjige.Count==0)
+                    btnOmoguciDodavanjeKnjige.Enabled = true;
             }
             else MessageBox.Show("Niste izabrali red za brisanje! Molimo vas izaberite red");
         }
@@ -232,6 +234,8 @@ namespace TvpKnjizara
             dgvRacun.DataSource = null;
             lblUkupnaCena.Text = "Cena:";
             ukupnaCena = 0;
+
+            btnOmoguciDodavanjeKnjige.Enabled = true;
         }
 
         private void dgvKnjige_CellClick(object sender, DataGridViewCellEventArgs e)
