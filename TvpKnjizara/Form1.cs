@@ -223,8 +223,6 @@ namespace TvpKnjizara
                 lblUkupnaCena.Text = "Cena: " + ukupnaCena;
                 dgvRacun.DataSource = null;
                 dgvRacun.DataSource = listaIzabraneKnjige;
-                if(listaIzabraneKnjige.Count==0)
-                    btnOmoguciDodavanjeKnjige.Enabled = true;
             }
             else MessageBox.Show("Niste izabrali red za brisanje! Molimo vas izaberite red");
         }
@@ -235,22 +233,19 @@ namespace TvpKnjizara
             dgvRacun.DataSource = null;
             lblUkupnaCena.Text = "Cena:";
             ukupnaCena = 0;
-
-            btnOmoguciDodavanjeKnjige.Enabled = true;
         }
 
         private void dgvKnjige_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-
-            btnOmoguciDodavanjeKnjige.Enabled = false;
-
             var izabraniRed = dgvKnjige.SelectedRows[0].DataBoundItem as Knjiga;
+            if (cmbMesec.SelectedIndex != -1)
+            {
+                ProveraDatumaZaCrtanje();
+                pnlStatistika.Invalidate();
+            }
             //var red = dgvKnjige.SelectedRows[0];
             if (txtKolicina.Text.Trim() != "" && int.Parse(txtKolicina.Text) != 0)
             {
-                StatistikaProdajeKnjiga();
-                pnlStatistika.Invalidate();
-                //Ucitavanje statistke prodaje knjiga
                 //Onemogucava kliktanja na nazive i time unosenje u tabelu
                 if (e.RowIndex < 0)
                 {
@@ -263,16 +258,17 @@ namespace TvpKnjizara
                         if (!PoklapanjeKnjigeNaRacunu(izabraniRed))
                         {
                             PodesavanjeStavkiRacuna(izabraniRed);
-                            
+
                         }
                     }
                     else
-                    { 
+                    {
                         PodesavanjeStavkiRacuna(izabraniRed);
                     }
                 }
             }
         }
+
 
         private void btnIzdavanjeRacuna_Click(object sender, EventArgs e)
         {
@@ -347,41 +343,17 @@ namespace TvpKnjizara
 
                 ukupnaCena = 0;
                 lblUkupnaCena.Text = "Cena: ";
-                btnOmoguciDodavanjeKnjige.Enabled = true;
                 brojProdajeIzabraneK = 0;
                 brojProdajeSvihK = 0;
-                StatistikaProdajeKnjiga();
             }
             else
                 MessageBox.Show("Morate prvo imati nešto na računu.");
-        }
-
-        private void btnOmoguciDodavanjeKnjige_Click(object sender, EventArgs e)
-        {
-            btnOmoguciDodavanjeKnjige.Enabled = false;
-            txtAutor.Enabled = true;
-            txtNaziv.Enabled = true;
-            txtCena.Enabled = true;
-            txtPopust.Enabled = true;
-            txtBrojStrana.Enabled = true;
-            dgvKnjige.Enabled = false;
-            chkListaZanrovi.Enabled = true;
-            btnSnimiKnjigu.Enabled = true;
         }
 
         private void btnSnimiKnjigu_Click(object sender, EventArgs e)
         {
             if (txtAutor.Text.Trim() != "" && txtNaziv.Text.Trim() != "" && txtCena.Text.Trim() != "" && txtPopust.Text.Trim() != "" && txtBrojStrana.Text.Trim() != "" && chkListaZanrovi.CheckedItems.Count != 0)
             {
-                btnOmoguciDodavanjeKnjige.Enabled = true;
-                txtAutor.Enabled = false;
-                txtNaziv.Enabled = false;
-                txtCena.Enabled = false;
-                txtPopust.Enabled = false;
-                txtBrojStrana.Enabled = false;
-                dgvKnjige.Enabled = true;
-                chkListaZanrovi.Enabled = false;
-                btnSnimiKnjigu.Enabled = false;
 
                 string val = "";
                 List<Zanr> izabraniZanrovi = new List<Zanr>();
@@ -493,44 +465,11 @@ namespace TvpKnjizara
             }
         }
 
-        private void SortiranjeListeKnjiga(List<Knjiga> lista)
-        {
-            Knjiga zamenaKnjiga = new Knjiga();
-            for (int i = 0; i < lista.Count - 1; i++)
-            {
-                for (int j = i + 1; j < lista.Count; j++)
-                {
-
-                    if (String.Compare(lista[i].Naziv, lista[j].Naziv) > 0)
-                    {
-                        zamenaKnjiga = lista[i];
-                        lista[i] = lista[j];
-                        lista[j] = zamenaKnjiga;
-                    }
-                }
-            }
-        }
-
-        private bool PoklapanjeKnjigeNaRacunu(Knjiga knjiga)
-        {
-            foreach (Knjiga izabranaKnjiga in listaIzabraneKnjige)
-            {
-                if (izabranaKnjiga.Id_knjige == knjiga.Id_knjige)
-                {
-                    //MessageBox.Show("Izabrna knjiga već postoji na računu!");
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-
         private void pnlStatistika_Paint(object sender, PaintEventArgs e)
         {
-            if (dgvRacun.DataSource != null)
+            if (cmbMesec.SelectedIndex != -1 &&  brojProdajeSvihK!=0)
             {
-                int procenatProdaje;
+            int procenatProdaje;
                 procenatProdaje = brojProdajeIzabraneK * 100 / brojProdajeSvihK;
                 int y2 = pnlStatistika.ClientSize.Height * procenatProdaje / 100;
                 Point pocetakLinije = new Point(pnlStatistika.Width/3,pnlStatistika.Height);
@@ -544,6 +483,10 @@ namespace TvpKnjizara
                 dc.DrawLine(blackPen, pocetakLinije,krajLinije);
                 dc.DrawLine(greenPen, pocetakDrugeLinije, krajDrugeLinije);
                 dc.Dispose();
+
+                lblSveKnjige.Text = "Sve knjige: " + brojProdajeSvihK;
+                lblIzabranaKnjiga.Text = "Izabrana knjiga: " + brojProdajeIzabraneK;
+                
                 brojProdajeSvihK = 0;
                 brojProdajeIzabraneK = 0;
             }
@@ -616,16 +559,51 @@ namespace TvpKnjizara
                 baza.zatvoriKonekciju();
             }
         }
-        private void StatistikaProdajeKnjiga()
+        private void ProveraDatumaZaCrtanje()
+        {
+            try
+            {
+                baza.otvoriKonekciju();
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = baza.Conn;
+                cmd.CommandText = "SELECT * FROM RACUN";
+                OleDbDataReader reader = cmd.ExecuteReader();
+
+                int idracuna = -1;
+                DateTime datum;
+                while (reader.Read())
+                {
+                    datum = Convert.ToDateTime(reader["datum"].ToString());
+                    if (cmbMesec.SelectedIndex + 1 == datum.Month)
+                    {
+                        
+                        idracuna = int.Parse(reader["id_racun"].ToString());
+                    }
+                    if(idracuna!=-1)
+                        idracuna = StatistikaProdajeKnjiga(idracuna);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                baza.zatvoriKonekciju();
+            }
+        }
+        private int StatistikaProdajeKnjiga(int idRac)
         {
             try
             {
                 var izabraniRed = dgvKnjige.CurrentRow.DataBoundItem as Knjiga;
-
-                baza.otvoriKonekciju();
+                //baza.otvoriKonekciju();
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = baza.Conn;
-                cmd.CommandText = "SELECT * FROM STAVKA_RACUNA";
+
+                var val = "WHERE id_racun = " + idRac; 
+                cmd.CommandText = "SELECT * FROM STAVKA_RACUNA " + val;
                 OleDbDataReader reader = cmd.ExecuteReader();
                 
                 while (reader.Read())
@@ -640,12 +618,39 @@ namespace TvpKnjizara
 
                 MessageBox.Show(ex.Message);
             }
-            finally
-            {
-                baza.zatvoriKonekciju();
-            }
-            
+            return -1;
         }
+        private void SortiranjeListeKnjiga(List<Knjiga> lista)
+        {
+            Knjiga zamenaKnjiga = new Knjiga();
+            for (int i = 0; i < lista.Count - 1; i++)
+            {
+                for (int j = i + 1; j < lista.Count; j++)
+                {
+
+                    if (String.Compare(lista[i].Naziv, lista[j].Naziv) > 0)
+                    {
+                        zamenaKnjiga = lista[i];
+                        lista[i] = lista[j];
+                        lista[j] = zamenaKnjiga;
+                    }
+                }
+            }
+        }
+
+        private bool PoklapanjeKnjigeNaRacunu(Knjiga knjiga)
+        {
+            foreach (Knjiga izabranaKnjiga in listaIzabraneKnjige)
+            {
+                if (izabranaKnjiga.Id_knjige == knjiga.Id_knjige)
+                {
+                    //MessageBox.Show("Izabrna knjiga već postoji na računu!");
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
            

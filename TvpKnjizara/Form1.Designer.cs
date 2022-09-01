@@ -42,7 +42,6 @@ namespace TvpKnjizara
             this.btnUkloni = new System.Windows.Forms.Button();
             this.dgvRacun = new System.Windows.Forms.DataGridView();
             this.lblRacun = new System.Windows.Forms.Label();
-            this.btnOmoguciDodavanjeKnjige = new System.Windows.Forms.Button();
             this.txtAutor = new System.Windows.Forms.TextBox();
             this.txtNaziv = new System.Windows.Forms.TextBox();
             this.txtCena = new System.Windows.Forms.TextBox();
@@ -62,6 +61,9 @@ namespace TvpKnjizara
             this.label9 = new System.Windows.Forms.Label();
             this.pnlStatistika = new System.Windows.Forms.Panel();
             this.label10 = new System.Windows.Forms.Label();
+            this.cmbMesec = new System.Windows.Forms.ComboBox();
+            this.lblSveKnjige = new System.Windows.Forms.Label();
+            this.lblIzabranaKnjiga = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKnjige)).BeginInit();
             this.pnlRacun.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRacun)).BeginInit();
@@ -199,19 +201,8 @@ namespace TvpKnjizara
             this.lblRacun.TabIndex = 0;
             this.lblRacun.Text = "RAČUN";
             // 
-            // btnOmoguciDodavanjeKnjige
-            // 
-            this.btnOmoguciDodavanjeKnjige.Location = new System.Drawing.Point(52, 286);
-            this.btnOmoguciDodavanjeKnjige.Name = "btnOmoguciDodavanjeKnjige";
-            this.btnOmoguciDodavanjeKnjige.Size = new System.Drawing.Size(158, 23);
-            this.btnOmoguciDodavanjeKnjige.TabIndex = 11;
-            this.btnOmoguciDodavanjeKnjige.Text = "Dodaj novu knjigu";
-            this.btnOmoguciDodavanjeKnjige.UseVisualStyleBackColor = true;
-            this.btnOmoguciDodavanjeKnjige.Click += new System.EventHandler(this.btnOmoguciDodavanjeKnjige_Click);
-            // 
             // txtAutor
             // 
-            this.txtAutor.Enabled = false;
             this.txtAutor.Location = new System.Drawing.Point(12, 327);
             this.txtAutor.Name = "txtAutor";
             this.txtAutor.Size = new System.Drawing.Size(100, 20);
@@ -219,7 +210,6 @@ namespace TvpKnjizara
             // 
             // txtNaziv
             // 
-            this.txtNaziv.Enabled = false;
             this.txtNaziv.Location = new System.Drawing.Point(130, 327);
             this.txtNaziv.Name = "txtNaziv";
             this.txtNaziv.Size = new System.Drawing.Size(100, 20);
@@ -227,7 +217,6 @@ namespace TvpKnjizara
             // 
             // txtCena
             // 
-            this.txtCena.Enabled = false;
             this.txtCena.Location = new System.Drawing.Point(12, 364);
             this.txtCena.Name = "txtCena";
             this.txtCena.Size = new System.Drawing.Size(100, 20);
@@ -235,7 +224,6 @@ namespace TvpKnjizara
             // 
             // txtPopust
             // 
-            this.txtPopust.Enabled = false;
             this.txtPopust.Location = new System.Drawing.Point(130, 364);
             this.txtPopust.Name = "txtPopust";
             this.txtPopust.Size = new System.Drawing.Size(100, 20);
@@ -243,7 +231,6 @@ namespace TvpKnjizara
             // 
             // txtBrojStrana
             // 
-            this.txtBrojStrana.Enabled = false;
             this.txtBrojStrana.Location = new System.Drawing.Point(12, 400);
             this.txtBrojStrana.Name = "txtBrojStrana";
             this.txtBrojStrana.Size = new System.Drawing.Size(100, 20);
@@ -296,7 +283,6 @@ namespace TvpKnjizara
             // 
             // chkListaZanrovi
             // 
-            this.chkListaZanrovi.Enabled = false;
             this.chkListaZanrovi.FormattingEnabled = true;
             this.chkListaZanrovi.Location = new System.Drawing.Point(130, 400);
             this.chkListaZanrovi.Name = "chkListaZanrovi";
@@ -305,7 +291,6 @@ namespace TvpKnjizara
             // 
             // btnSnimiKnjigu
             // 
-            this.btnSnimiKnjigu.Enabled = false;
             this.btnSnimiKnjigu.Location = new System.Drawing.Point(12, 441);
             this.btnSnimiKnjigu.Name = "btnSnimiKnjigu";
             this.btnSnimiKnjigu.Size = new System.Drawing.Size(100, 23);
@@ -376,11 +361,54 @@ namespace TvpKnjizara
             this.label10.TabIndex = 0;
             this.label10.Text = "Statistika prodaje odabrane knjige";
             // 
+            // cmbMesec
+            // 
+            this.cmbMesec.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbMesec.FormattingEnabled = true;
+            this.cmbMesec.Items.AddRange(new object[] {
+            "Januar",
+            "Februar",
+            "Mart",
+            "April",
+            "Maj",
+            "Jun",
+            "Jul",
+            "Avgust",
+            "Septembar",
+            "Oktobar",
+            "Novembar",
+            "Decembar"});
+            this.cmbMesec.Location = new System.Drawing.Point(274, 61);
+            this.cmbMesec.Name = "cmbMesec";
+            this.cmbMesec.Size = new System.Drawing.Size(121, 21);
+            this.cmbMesec.TabIndex = 30;
+            // 
+            // lblSveKnjige
+            // 
+            this.lblSveKnjige.AutoSize = true;
+            this.lblSveKnjige.Location = new System.Drawing.Point(433, 283);
+            this.lblSveKnjige.Name = "lblSveKnjige";
+            this.lblSveKnjige.Size = new System.Drawing.Size(60, 13);
+            this.lblSveKnjige.TabIndex = 31;
+            this.lblSveKnjige.Text = "Sve knjige:";
+            // 
+            // lblIzabranaKnjiga
+            // 
+            this.lblIzabranaKnjiga.AutoSize = true;
+            this.lblIzabranaKnjiga.Location = new System.Drawing.Point(516, 283);
+            this.lblIzabranaKnjiga.Name = "lblIzabranaKnjiga";
+            this.lblIzabranaKnjiga.Size = new System.Drawing.Size(82, 13);
+            this.lblIzabranaKnjiga.TabIndex = 32;
+            this.lblIzabranaKnjiga.Text = "Izabrana knjiga:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(907, 492);
+            this.Controls.Add(this.lblIzabranaKnjiga);
+            this.Controls.Add(this.lblSveKnjige);
+            this.Controls.Add(this.cmbMesec);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.pnlStatistika);
             this.Controls.Add(this.label9);
@@ -400,7 +428,6 @@ namespace TvpKnjizara
             this.Controls.Add(this.txtCena);
             this.Controls.Add(this.txtNaziv);
             this.Controls.Add(this.txtAutor);
-            this.Controls.Add(this.btnOmoguciDodavanjeKnjige);
             this.Controls.Add(this.pnlRacun);
             this.Controls.Add(this.txtKolicina);
             this.Controls.Add(this.dgvKnjige);
@@ -433,7 +460,6 @@ namespace TvpKnjizara
         private System.Windows.Forms.Label lblRacun;
         private System.Windows.Forms.Label lblUkupnaCena;
         private System.Windows.Forms.Button btnIzdavanjeRacuna;
-        private System.Windows.Forms.Button btnOmoguciDodavanjeKnjige;
         private System.Windows.Forms.TextBox txtAutor;
         private System.Windows.Forms.TextBox txtNaziv;
         private System.Windows.Forms.TextBox txtCena;
@@ -453,6 +479,9 @@ namespace TvpKnjizara
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Panel pnlStatistika;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox cmbMesec;
+        private System.Windows.Forms.Label lblSveKnjige;
+        private System.Windows.Forms.Label lblIzabranaKnjiga;
     }
 }
 
