@@ -19,7 +19,7 @@ namespace TvpKnjizara
 
         BazaKnjige baza;
         Racun noviRacun;
-        List<Knjiga> listaSortiranjeKnjige, listaKnjigePoZanrovima, listaIzabraneKnjige;
+        List<Knjiga> listaSortiranjeKnjige, listaKnjigePoZanrovima, listaIzabraneKnjige, listaNajprodavanijeKnjige;
         List<Zanr> listaZanrovi;
         List<Pripadnost> listaPripadnost;
         List<Racun> listaRacuni;
@@ -32,7 +32,7 @@ namespace TvpKnjizara
         public Form1()
         {
             InitializeComponent();
-            connString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source='D:\Projekti\TvpKnjizara\TvpKnjizara\Knjizara.accdb'";
+            connString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=D:\Projekti\LibraryProject\TvpKnjizara\Knjizara.accdb";
             //ds = new KnjizaraDataSet();
             //daRacun = new OleDbDataAdapter("SELECT * FROM RACUN", connString);
             //daStavkaRacuna = new OleDbDataAdapter("SELECT * FROM STAVKA_RACUNA", connString);
@@ -43,8 +43,11 @@ namespace TvpKnjizara
             listaKnjigePoZanrovima = new List<Knjiga>();
             listaRacuni = new List<Racun>();
             listaIzabraneKnjige = new List<Knjiga>();
+            listaNajprodavanijeKnjige = new List<Knjiga>();
             noviRacun = new Racun();
             biloKojiZanr = "Bilo koji";
+
+            this.DoubleBuffered = true;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -164,6 +167,8 @@ namespace TvpKnjizara
             dtpDatumOd.MaxDate = DateTime.Now;
             dtpDatumDo.MaxDate = DateTime.Now;
 
+            NajprodavanijeKnjige();
+
         }
         private void TxtKolicina_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -240,7 +245,7 @@ namespace TvpKnjizara
             var izabraniRed = dgvKnjige.SelectedRows[0].DataBoundItem as Knjiga;
             if (cmbMesec.SelectedIndex != -1)
             {
-                ProveraDatumaZaCrtanje();
+                StatistikaProdajeKnjiga();
                 pnlStatistika.Invalidate();
             }
             //var red = dgvKnjige.SelectedRows[0];
@@ -340,6 +345,7 @@ namespace TvpKnjizara
                     baza.zatvoriKonekciju();
                 }
 
+                NajprodavanijeKnjige();
 
                 ukupnaCena = 0;
                 lblUkupnaCena.Text = "Cena: ";
@@ -467,28 +473,34 @@ namespace TvpKnjizara
 
         private void pnlStatistika_Paint(object sender, PaintEventArgs e)
         {
-            if (cmbMesec.SelectedIndex != -1 &&  brojProdajeSvihK!=0)
+            if (cmbMesec.SelectedIndex != -1 && brojProdajeSvihK != 0)
             {
-            int procenatProdaje;
+                int procenatProdaje;
                 procenatProdaje = brojProdajeIzabraneK * 100 / brojProdajeSvihK;
                 int y2 = pnlStatistika.ClientSize.Height * procenatProdaje / 100;
-                Point pocetakLinije = new Point(pnlStatistika.Width/3,pnlStatistika.Height);
-                Point krajLinije = new Point(pnlStatistika.Width/3, 0);
-                Point pocetakDrugeLinije = new Point(pnlStatistika.Width * 2/3, pnlStatistika.Height);
-                Point krajDrugeLinije = new Point(pnlStatistika.Width * 2/3, pnlStatistika.Height - y2);
+                Point pocetakLinije = new Point(pnlStatistika.Width / 3, pnlStatistika.Height);
+                Point krajLinije = new Point(pnlStatistika.Width / 3, 0);
+                Point pocetakDrugeLinije = new Point(pnlStatistika.Width * 2 / 3, pnlStatistika.Height);
+                Point krajDrugeLinije = new Point(pnlStatistika.Width * 2 / 3, pnlStatistika.Height - y2);
                 Pen greenPen = new Pen(Color.Green, 20);
                 Pen blackPen = new Pen(Color.Black, 20); // 3 pixels wide
                 base.OnPaint(e);
                 Graphics dc = e.Graphics;
-                dc.DrawLine(blackPen, pocetakLinije,krajLinije);
+                dc.DrawLine(blackPen, pocetakLinije, krajLinije);
                 dc.DrawLine(greenPen, pocetakDrugeLinije, krajDrugeLinije);
                 dc.Dispose();
 
                 lblSveKnjige.Text = "Sve knjige: " + brojProdajeSvihK;
                 lblIzabranaKnjiga.Text = "Izabrana knjiga: " + brojProdajeIzabraneK;
-                
                 brojProdajeSvihK = 0;
                 brojProdajeIzabraneK = 0;
+            }
+            else
+            {
+                brojProdajeSvihK = 0;
+                brojProdajeIzabraneK = 0;
+                lblSveKnjige.Text = "Sve knjige: " + brojProdajeSvihK;
+                lblIzabranaKnjiga.Text = "Izabrana knjiga: " + brojProdajeIzabraneK;
             }
         }
 
@@ -559,29 +571,72 @@ namespace TvpKnjizara
                 baza.zatvoriKonekciju();
             }
         }
-        private void ProveraDatumaZaCrtanje()
+
+        private void cmbMesec_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if(dgvKnjige.SelectedRows.Count>0)
+            {
+                StatistikaProdajeKnjiga();
+                pnlStatistika.Invalidate();
+            }
+        }
+
+        //private void ProveraDatumaZaCrtanje()
+        //{
+        //    try
+        //    {
+        //        baza.otvoriKonekciju();
+        //        OleDbCommand cmd = new OleDbCommand();
+        //        cmd.Connection = baza.Conn;
+        //        cmd.CommandText = "SELECT * FROM RACUN";
+        //        OleDbDataReader reader = cmd.ExecuteReader();
+
+        //        int idracunaCrtanje = -1, idracunaNajprodKnjige=-1;
+        //        DateTime datum;
+        //        while (reader.Read())
+        //        {
+        //            datum = Convert.ToDateTime(reader["datum"].ToString()).Date;
+        //            if (cmbMesec.SelectedIndex + 1 == datum.Month)
+        //            {
+                        
+        //                idracunaCrtanje = int.Parse(reader["id_racun"].ToString());
+        //            }
+        //            if(idracunaCrtanje!=-1)
+        //                idracunaCrtanje = StatistikaProdajeKnjiga(idracunaCrtanje);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        MessageBox.Show(ex.Message);
+        //    }
+        //    finally
+        //    {
+        //        baza.zatvoriKonekciju();
+        //    }
+        //}
+        private void StatistikaProdajeKnjiga()
         {
             try
             {
+                var izabraniRed = dgvKnjige.CurrentRow.DataBoundItem as Knjiga;
                 baza.otvoriKonekciju();
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = baza.Conn;
-                cmd.CommandText = "SELECT * FROM RACUN";
-                OleDbDataReader reader = cmd.ExecuteReader();
 
-                int idracuna = -1;
-                DateTime datum;
+                var val = cmbMesec.SelectedIndex+1 + " ";
+                cmd.CommandText = "SELECT Stavka_racuna.id_knjiga, Sum(Stavka_racuna.kolicina) AS kolicina " +
+                    "FROM Racun INNER JOIN Stavka_racuna ON Racun.id_racun = Stavka_racuna.id_racun WHERE MONTH([datum]) = " + val +
+                    "GROUP BY Stavka_racuna.id_knjiga;";
+                OleDbDataReader reader = cmd.ExecuteReader();
+                
                 while (reader.Read())
                 {
-                    datum = Convert.ToDateTime(reader["datum"].ToString());
-                    if (cmbMesec.SelectedIndex + 1 == datum.Month)
-                    {
-                        
-                        idracuna = int.Parse(reader["id_racun"].ToString());
-                    }
-                    if(idracuna!=-1)
-                        idracuna = StatistikaProdajeKnjiga(idracuna);
+                    brojProdajeSvihK += int.Parse(reader["kolicina"].ToString());
+                    if (izabraniRed.Id_knjige == int.Parse(reader["id_knjiga"].ToString()))
+                        brojProdajeIzabraneK+= int.Parse(reader["kolicina"].ToString());
                 }
+            
             }
             catch (Exception ex)
             {
@@ -592,33 +647,6 @@ namespace TvpKnjizara
             {
                 baza.zatvoriKonekciju();
             }
-        }
-        private int StatistikaProdajeKnjiga(int idRac)
-        {
-            try
-            {
-                var izabraniRed = dgvKnjige.CurrentRow.DataBoundItem as Knjiga;
-                //baza.otvoriKonekciju();
-                OleDbCommand cmd = new OleDbCommand();
-                cmd.Connection = baza.Conn;
-
-                var val = "WHERE id_racun = " + idRac; 
-                cmd.CommandText = "SELECT * FROM STAVKA_RACUNA " + val;
-                OleDbDataReader reader = cmd.ExecuteReader();
-                
-                while (reader.Read())
-                {
-                    brojProdajeSvihK += int.Parse(reader["kolicina"].ToString());
-                    if (izabraniRed.Id_knjige == int.Parse(reader["id_knjiga"].ToString()))
-                        brojProdajeIzabraneK+= int.Parse(reader["kolicina"].ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.Message);
-            }
-            return -1;
         }
         private void SortiranjeListeKnjiga(List<Knjiga> lista)
         {
@@ -650,7 +678,50 @@ namespace TvpKnjizara
             }
             return false;
         }
+        
+        private void NajprodavanijeKnjige()
+        {
+            try
+            {
+                baza.otvoriKonekciju();
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.Connection = baza.Conn;
+                var val = "WHERE racun.datum = #" + DateTime.Now.Date.ToShortDateString() + "# ";
+                cmd.CommandText = "SELECT Knjiga.naziv,Sum(Stavka_racuna.kolicina) AS KolicinaProdatih " +
+                    "FROM Racun INNER JOIN(Knjiga INNER JOIN Stavka_racuna ON Knjiga.id_knjiga = Stavka_racuna.id_knjiga) ON Racun.id_racun = Stavka_racuna.id_racun " +
+                    val +
+                    "GROUP BY Knjiga.Naziv ORDER BY Sum(Stavka_racuna.kolicina) DESC;";
+                OleDbDataReader reader = cmd.ExecuteReader();
 
+                int brojac = 0;
+                if (reader.HasRows)
+                    while (reader.Read())
+                    {
+                        Knjiga najprodavanijaKnjiga = new Knjiga();
+                        najprodavanijaKnjiga.Naziv = reader["naziv"].ToString(); ;
+                        listaNajprodavanijeKnjige.Add(najprodavanijaKnjiga);
+                        brojac++;
+                        if (brojac == 3)
+                            break;
+                    }
+                else
+                {
+                    Label lblNajProdKnjiga= new Label();
+                    lblNajProdKnjiga.Text = "Nema prodatih knjiga danas";
+                    pnlNajprodavanijeKnjige.Controls.Add(lblNajProdKnjiga);
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                baza.zatvoriKonekciju();
+            }
+        }
     }
 }
            
