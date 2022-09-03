@@ -68,9 +68,11 @@ namespace TvpKnjizara
             this.label11 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.pnlNajprodavanijeKnjige = new System.Windows.Forms.Panel();
+            this.lblNajprodKnjiga = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKnjige)).BeginInit();
             this.pnlRacun.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRacun)).BeginInit();
+            this.pnlNajprodavanijeKnjige.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmbZanr
@@ -440,10 +442,21 @@ namespace TvpKnjizara
             // 
             // pnlNajprodavanijeKnjige
             // 
+            this.pnlNajprodavanijeKnjige.Controls.Add(this.lblNajprodKnjiga);
             this.pnlNajprodavanijeKnjige.Location = new System.Drawing.Point(405, 9);
             this.pnlNajprodavanijeKnjige.Name = "pnlNajprodavanijeKnjige";
             this.pnlNajprodavanijeKnjige.Size = new System.Drawing.Size(199, 31);
             this.pnlNajprodavanijeKnjige.TabIndex = 35;
+            // 
+            // lblNajprodKnjiga
+            // 
+            this.lblNajprodKnjiga.AutoSize = true;
+            this.lblNajprodKnjiga.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNajprodKnjiga.Location = new System.Drawing.Point(3, 7);
+            this.lblNajprodKnjiga.Name = "lblNajprodKnjiga";
+            this.lblNajprodKnjiga.Size = new System.Drawing.Size(12, 16);
+            this.lblNajprodKnjiga.TabIndex = 0;
+            this.lblNajprodKnjiga.Text = "-";
             // 
             // Form1
             // 
@@ -488,6 +501,8 @@ namespace TvpKnjizara
             this.pnlRacun.ResumeLayout(false);
             this.pnlRacun.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRacun)).EndInit();
+            this.pnlNajprodavanijeKnjige.ResumeLayout(false);
+            this.pnlNajprodavanijeKnjige.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -533,6 +548,7 @@ namespace TvpKnjizara
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Panel pnlNajprodavanijeKnjige;
+        private System.Windows.Forms.Label lblNajprodKnjiga;
     }
 }
 

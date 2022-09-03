@@ -6,6 +6,7 @@ using System.Data.OleDb;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,9 +14,11 @@ namespace TvpKnjizara
 {
     public partial class Form1 : Form
     {
-        KnjizaraDataSet ds;
-        OleDbDataAdapter daRacun;
-        OleDbDataAdapter daStavkaRacuna;
+        //KnjizaraDataSet ds;
+        //OleDbDataAdapter daRacun;
+        //OleDbDataAdapter daStavkaRacuna;
+
+        Thread t;
 
         BazaKnjige baza;
         Racun noviRacun;
@@ -167,8 +170,11 @@ namespace TvpKnjizara
             dtpDatumOd.MaxDate = DateTime.Now;
             dtpDatumDo.MaxDate = DateTime.Now;
 
+            t = new Thread(PostavljanjeNajprodKnjiga);
+            t.IsBackground = true;
             NajprodavanijeKnjige();
 
+            //t.Start();
         }
         private void TxtKolicina_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -286,7 +292,8 @@ namespace TvpKnjizara
                     OleDbCommand cmd = new OleDbCommand();
                     cmd.Connection = baza.Conn;
                     cmd.CommandText = "INSERT INTO RACUN(datum,ukupna_cena)" + "VALUES(@datum,@cena)";
-                    cmd.Parameters.AddWithValue("datum", noviRacun.Datum.Date);
+                    var param =cmd.Parameters.AddWithValue("datum", noviRacun.Datum);
+                    param.OleDbType = OleDbType.Date;
                     cmd.Parameters.AddWithValue("cena", noviRacun.Ukupna_cena);
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("UspeŠno ste otkucali račun.");
@@ -335,9 +342,10 @@ namespace TvpKnjizara
 
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    //transaction.Rollback();
+                    transaction.Rollback();
+                    MessageBox.Show(ex.Message);
                     throw;
                 }
                 finally
@@ -345,12 +353,17 @@ namespace TvpKnjizara
                     baza.zatvoriKonekciju();
                 }
 
+                StatistikaProdajeKnjiga();
+                if(cmbMesec.SelectedIndex!=-1)
+                    pnlStatistika.Invalidate();
                 NajprodavanijeKnjige();
 
                 ukupnaCena = 0;
                 lblUkupnaCena.Text = "Cena: ";
                 brojProdajeIzabraneK = 0;
                 brojProdajeSvihK = 0;
+                dtpDatumOd.Value.AddDays(-1);
+                dtpDatumOd.Value.AddDays(1);
             }
             else
                 MessageBox.Show("Morate prvo imati nešto na računu.");
@@ -455,10 +468,11 @@ namespace TvpKnjizara
 
         private void dtpDatumOd_ValueChanged(object sender, EventArgs e)
         {
+            lbRacuni.Items.Clear();
             dtpDatumDo.MinDate = dtpDatumOd.Value.AddYears(-1);
             dtpDatumDo.Value = dtpDatumOd.Value;
             dtpDatumDo.MinDate = dtpDatumOd.Value;
-            lbRacuni.Items.Clear();
+            
         }
 
         private void dtpDatumDo_ValueChanged(object sender, EventArgs e)
@@ -466,7 +480,7 @@ namespace TvpKnjizara
             lbRacuni.Items.Clear();
             foreach (var racun in listaRacuni)
             {
-                if (racun.Datum.CompareTo(dtpDatumOd.Value) >= 0 && racun.Datum.CompareTo(dtpDatumDo.Value) <=0)
+                if (racun.Datum.Date.CompareTo(dtpDatumOd.Value.Date) >= 0 && racun.Datum.Date.CompareTo(dtpDatumDo.Value) <=0)
                     lbRacuni.Items.Add(racun);
             }
         }
@@ -571,6 +585,7 @@ namespace TvpKnjizara
                 baza.zatvoriKonekciju();
             }
         }
+
 
         private void cmbMesec_SelectedValueChanged(object sender, EventArgs e)
         {
@@ -678,9 +693,11 @@ namespace TvpKnjizara
             }
             return false;
         }
-        
+
         private void NajprodavanijeKnjige()
         {
+            if(t.IsAlive)
+                t.Abort();
             try
             {
                 baza.otvoriKonekciju();
@@ -695,6 +712,7 @@ namespace TvpKnjizara
 
                 int brojac = 0;
                 if (reader.HasRows)
+                {
                     while (reader.Read())
                     {
                         Knjiga najprodavanijaKnjiga = new Knjiga();
@@ -704,13 +722,21 @@ namespace TvpKnjizara
                         if (brojac == 3)
                             break;
                     }
+
+                    //Ozivljavanje niti, kada se unese novi racun ili pokrene aplikacija
+                    if (!t.IsAlive)
+                    {
+                        t = new Thread(PostavljanjeNajprodKnjiga);
+                        t.IsBackground = true;
+                        t.Start();
+                    }
+                }
                 else
                 {
-                    Label lblNajProdKnjiga= new Label();
+                    Label lblNajProdKnjiga = new Label();
                     lblNajProdKnjiga.Text = "Nema prodatih knjiga danas";
                     pnlNajprodavanijeKnjige.Controls.Add(lblNajProdKnjiga);
                 }
-
             }
             catch (Exception)
             {
@@ -720,6 +746,27 @@ namespace TvpKnjizara
             finally
             {
                 baza.zatvoriKonekciju();
+            }            
+        }
+        void PostavljanjeNajprodKnjiga()
+        {
+            int korak = 1;
+            while (true)
+            {
+                foreach (var knjiga in listaNajprodavanijeKnjige)
+                {
+                    lblNajprodKnjiga.Invoke((MethodInvoker)(() => lblNajprodKnjiga.Text = knjiga.Naziv));
+                    lblNajprodKnjiga.Invoke((MethodInvoker)(() => lblNajprodKnjiga.Location = new Point(0 - lblNajprodKnjiga.Width, lblNajprodKnjiga.Location.Y)));
+
+                    while (true)
+                    {
+                        Thread.Sleep(10);
+                        lblNajprodKnjiga.Invoke((MethodInvoker)(() => lblNajprodKnjiga.Left += korak));
+                        if (lblNajprodKnjiga.Left == pnlNajprodavanijeKnjige.ClientSize.Width)
+                            break;
+                    }
+
+                }
             }
         }
     }
