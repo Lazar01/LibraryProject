@@ -362,8 +362,8 @@ namespace TvpKnjizara
                 lblUkupnaCena.Text = "Cena: ";
                 brojProdajeIzabraneK = 0;
                 brojProdajeSvihK = 0;
-                dtpDatumOd.Value.AddDays(-1);
-                dtpDatumOd.Value.AddDays(1);
+                dtpDatumOd.Value = dtpDatumOd.Value.AddDays(-1);
+                dtpDatumOd.Value = dtpDatumOd.Value.AddDays(1);
             }
             else
                 MessageBox.Show("Morate prvo imati nešto na računu.");
@@ -703,7 +703,7 @@ namespace TvpKnjizara
                 baza.otvoriKonekciju();
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.Connection = baza.Conn;
-                var val = "WHERE racun.datum = #" + DateTime.Now.Date.ToShortDateString() + "# ";
+                var val = "WHERE DateValue(racun.datum) = #" + DateTime.Now.Date.ToShortDateString() + "# ";
                 cmd.CommandText = "SELECT Knjiga.naziv,Sum(Stavka_racuna.kolicina) AS KolicinaProdatih " +
                     "FROM Racun INNER JOIN(Knjiga INNER JOIN Stavka_racuna ON Knjiga.id_knjiga = Stavka_racuna.id_knjiga) ON Racun.id_racun = Stavka_racuna.id_racun " +
                     val +
@@ -732,11 +732,7 @@ namespace TvpKnjizara
                     }
                 }
                 else
-                {
-                    Label lblNajProdKnjiga = new Label();
-                    lblNajProdKnjiga.Text = "Nema prodatih knjiga danas";
-                    pnlNajprodavanijeKnjige.Controls.Add(lblNajProdKnjiga);
-                }
+                   lblNajprodKnjiga.Text = "Nema prodatih knjiga danas";
             }
             catch (Exception)
             {
