@@ -1,1 +1,1 @@
-Library Project presents a mini app for library purposes. Application provides info about what books are in offer, their info, selling statistics of books. Also you can add new book. It is written in c# and connect with access database.
+Library Project presents a app for library purposes. Application provides info about what books are in offer, their info, selling statistics of books. Also you can add new book. It is written in c# and connect with access database.
